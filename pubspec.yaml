@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.19.0
   pub_api_client:
     git: https://github.com/tilucasoli/pub_api_client
 

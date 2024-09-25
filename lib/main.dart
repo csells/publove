@@ -3,6 +3,7 @@
 // --Erik Seidel, 2024-09-25
 // https://x.com/_eseidel/status/1838789824276500661
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package_data.dart';
 
@@ -39,8 +40,10 @@ class PackageList extends StatelessWidget {
 }
 
 class PackageDataListView extends StatelessWidget {
-  const PackageDataListView(this.packageData, {super.key});
+  PackageDataListView(this.packageData, {super.key});
   final List<PackageData> packageData;
+
+  final _likeFormat = NumberFormat.decimalPattern();
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +62,27 @@ class PackageDataListView extends StatelessWidget {
         rows: packageData.map((packageData) {
           return DataRow(cells: [
             DataCell(Text(packageData.name)),
-            DataCell(Text('${packageData.daysSincePublished} days ago')),
-            DataCell(Text(_toPercent(packageData.popularityScore))),
-            DataCell(Text(packageData.likes.toString())),
-            DataCell(Text(packageData.isNullSafe.toString())),
-            DataCell(Text(packageData.isDart3.toString())),
-            DataCell(Text(packageData.ratio.toStringAsFixed(0))),
+            DataCell(
+              Text(
+                '${packageData.daysSincePublished} days ago',
+                style: TextStyle(
+                  color:
+                      packageData.daysSincePublished > 180 ? Colors.red : null,
+                ),
+              ),
+            ),
+            DataCell(RightAlign(
+                child: Text(_toPercent(packageData.popularityScore)))),
+            DataCell(
+              RightAlign(
+                child: Text(_likeFormat.format(packageData.likes)),
+              ),
+            ),
+            DataCell(
+                RightAlign(child: Text(packageData.isNullSafe.toString()))),
+            DataCell(RightAlign(child: Text(packageData.isDart3.toString()))),
+            DataCell(
+                RightAlign(child: Text(packageData.ratio.toStringAsFixed(0)))),
           ]);
         }).toList(),
       ),
@@ -72,4 +90,15 @@ class PackageDataListView extends StatelessWidget {
   }
 
   String _toPercent(double value) => '${(value * 100).toStringAsFixed(0)}%';
+}
+
+class RightAlign extends StatelessWidget {
+  const RightAlign({required this.child, super.key});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.centerRight,
+        child: child,
+      );
 }
