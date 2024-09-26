@@ -7,6 +7,9 @@ import 'package:intl/intl.dart';
 
 import 'package_data.dart';
 
+// TODO: include the mover score?
+// https://github.com/ericwindmill/pub_analytics/blob/fa63a022ab3f3cb19c45367a809be417d99d8cfe/lib/model/package.dart#L75
+
 void main() async => runApp(const App());
 
 class App extends StatelessWidget {
@@ -26,15 +29,14 @@ class PackageList extends StatelessWidget {
         ),
         body: FutureBuilder(
           future: PackageData.fetchPackages(),
-          builder: (context, packageDataSnapshot) {
-            return packageDataSnapshot.hasError
-                ? Center(child: Text('Error: ${packageDataSnapshot.error}'))
-                : packageDataSnapshot.hasData
-                    ? Center(
-                        child: PackageDataListView(packageDataSnapshot.data!),
-                      )
-                    : Center(child: const CircularProgressIndicator());
-          },
+          builder: (context, packageDataSnapshot) =>
+              packageDataSnapshot.hasError
+                  ? Center(child: Text('Error: ${packageDataSnapshot.error}'))
+                  : packageDataSnapshot.hasData
+                      ? Center(
+                          child: PackageDataListView(packageDataSnapshot.data!),
+                        )
+                      : Center(child: const CircularProgressIndicator()),
         ),
       );
 }
@@ -46,48 +48,50 @@ class PackageDataListView extends StatelessWidget {
   final _likeFormat = NumberFormat.decimalPattern();
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Name')),
-          DataColumn(label: Text('Published')),
-          DataColumn(label: Text('Popularity Score')),
-          DataColumn(label: Text('Likes')),
-          DataColumn(label: Text('Null Safe')),
-          DataColumn(label: Text('Dart 3')),
-          DataColumn(label: Text('Ratio')),
-        ],
-        rows: packageData.map((packageData) {
-          return DataRow(cells: [
-            DataCell(Text(packageData.name)),
-            DataCell(
-              Text(
-                '${packageData.daysSincePublished} days ago',
-                style: TextStyle(
-                  color:
-                      packageData.daysSincePublished > 180 ? Colors.red : null,
+  Widget build(BuildContext context) => SingleChildScrollView(
+        child: DataTable(
+          columns: const [
+            DataColumn(label: Text('Name')),
+            DataColumn(label: Text('Published')),
+            DataColumn(label: Text('Popularity Score')),
+            DataColumn(label: Text('Likes')),
+            DataColumn(label: Text('Null Safe')),
+            DataColumn(label: Text('Dart 3')),
+            DataColumn(label: Text('Ratio')),
+          ],
+          rows: [
+            for (var packageData in packageData)
+              DataRow(cells: [
+                DataCell(Text(packageData.name)),
+                DataCell(
+                  Text(
+                    '${packageData.daysSincePublished} days ago',
+                    style: TextStyle(
+                      color: packageData.daysSincePublished > 180
+                          ? Colors.red
+                          : null,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            DataCell(RightAlign(
-                child: Text(_toPercent(packageData.popularityScore)))),
-            DataCell(
-              RightAlign(
-                child: Text(_likeFormat.format(packageData.likes)),
-              ),
-            ),
-            DataCell(
-                RightAlign(child: Text(packageData.isNullSafe.toString()))),
-            DataCell(RightAlign(child: Text(packageData.isDart3.toString()))),
-            DataCell(
-                RightAlign(child: Text(packageData.ratio.toStringAsFixed(0)))),
-          ]);
-        }).toList(),
-      ),
-    );
-  }
+                DataCell(RightAlign(
+                  child: Text(_toPercent(packageData.popularityScore)),
+                )),
+                DataCell(RightAlign(
+                  child: Text(_likeFormat.format(packageData.likes)),
+                )),
+                DataCell(RightAlign(
+                  child: Text(packageData.isNullSafe.toString()),
+                )),
+                DataCell(RightAlign(
+                  child: Text(packageData.isDart3.toString()),
+                )),
+                DataCell(RightAlign(
+                  child: Text(packageData.ratio.toStringAsFixed(0)),
+                )),
+              ]),
+          ],
+        ),
+      );
 
   String _toPercent(double value) => '${(value * 100).toStringAsFixed(0)}%';
 }

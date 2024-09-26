@@ -8,6 +8,7 @@ class PackageData {
     required this.isNullSafe,
     required this.isDart3,
     required this.likes,
+    this.notes = '',
   }) : daysSincePublished = DateTime.now().difference(published).inDays;
 
   final String name;
@@ -17,6 +18,7 @@ class PackageData {
   final bool isNullSafe;
   final bool isDart3;
   final int likes;
+  final String notes;
 
   /// ratio of days since publication to popularity score
   double get ratio => daysSincePublished / popularityScore;
@@ -38,13 +40,17 @@ class PackageData {
           scorecard.panaReport?.derivedTags?.contains('is:dart3-compatible') ==
               true,
       likes: metrics.score.likeCount,
+      notes: name == 'provider'
+          ? 'the author of provider recommends using riverpod instead'
+          : '',
     );
   }
 
   static Future<List<PackageData>> fetchPackages() async {
     final client = PubClient(debug: true);
     final results = await client.search('', sort: SearchOrder.top);
-    return Future.wait(results.packages
-        .map((result) => PackageData.fromPackageResult(result)));
+    return Future.wait(
+      results.packages.map((result) => PackageData.fromPackageResult(result)),
+    );
   }
 }
