@@ -182,12 +182,11 @@ packages:
   pub_api_client:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: f38c73b16ab97271448b1253194456d99b175a37
-      url: "https://github.com/tilucasoli/pub_api_client"
-    source: git
-    version: "2.7.0"
+      name: pub_api_client
+      sha256: "06321793e558b2dfac3a11098a530b816a8f752a5cf9208a382be9a418e3f5fc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.1"
   pub_semver:
     dependency: transitive
     description:
