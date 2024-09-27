@@ -2,16 +2,11 @@
 // days-since-last-publish to usage or other “important & abandoned” list.'
 // --Erik Seidel, 2024-09-25
 // https://x.com/_eseidel/status/1838789824276500661
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_table/flutter_expandable_table.dart';
-import 'package:intl/intl.dart';
+import 'package:gap/gap.dart';
 
 import 'package_data.dart';
-
-// TODO: include the mover score?
-// https://github.com/ericwindmill/pub_analytics/blob/fa63a022ab3f3cb19c45367a809be417d99d8cfe/lib/model/package.dart#L75
+import 'packages_table.dart';
 
 void main() async => runApp(const App());
 
@@ -44,149 +39,47 @@ class PackageList extends StatelessWidget {
       );
 }
 
-class PackageDataListView extends StatelessWidget {
-  PackageDataListView(this.packageData, {super.key});
-  final List<PackageData> packageData;
+class PackageDataListView extends StatefulWidget {
+  const PackageDataListView(this.packages, {super.key});
+  final List<PackageData> packages;
 
-  final _likesFormat = NumberFormat.decimalPattern();
+  @override
+  State<PackageDataListView> createState() => _PackageDataListViewState();
+}
+
+class _PackageDataListViewState extends State<PackageDataListView> {
+  int page = 1;
 
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.all(32),
-        child: ExpandableTable(
-          headerHeight: 48,
-          duration: const Duration(milliseconds: 0),
-          firstHeaderCell: ExpandableTableCell(child: _HeaderCell('Name')),
-          headers: [
-            _header('Published'),
-            _header('Popularity Score'),
-            _header('Likes'),
-            _header('Null Safe'),
-            _header('Dart 3'),
-            _header('Ratio'),
-          ],
-          rows: [
-            for (var package in packageData)
-              ExpandableTableRow(
-                firstCell: _firstCell(package),
-                cells: package.notes.isNotEmpty ? null : _subCells(package),
-                legend:
-                    package.notes.isNotEmpty ? _TableCell(package.notes) : null,
-                children: package.notes.isNotEmpty ? [_subRow(package)] : null,
-              ),
-          ],
-        ),
-      );
-
-  String _toPercent(double value) => '${(value * 100).toStringAsFixed(0)}%';
-
-  ExpandableTableHeader _header(String name) => ExpandableTableHeader(
-        cell: ExpandableTableCell(
-          child: _HeaderCell(name),
-        ),
-      );
-
-  ExpandableTableCell _tableCell(
-    String text, {
-    bool bad = false,
-    Alignment alignment = Alignment.centerLeft,
-  }) =>
-      ExpandableTableCell(
-        child: _TableCell(text, bad: bad, alignment: alignment),
-      );
-
-  ExpandableTableRow _subRow(PackageData package) => ExpandableTableRow(
-        firstCell: ExpandableTableCell(
-          child: Row(
-            children: [
-              SizedBox(width: 32),
-              _TableCell(package.name),
-            ],
-          ),
-        ),
-        cells: _subCells(package),
-      );
-
-  List<ExpandableTableCell> _subCells(PackageData package) => [
-        _tableCell(
-          '${package.daysSincePublished} days ago',
-          bad: package.daysSincePublished > 180,
-        ),
-        _tableCell(
-          _toPercent(package.popularityScore),
-          bad: package.popularityScore < 0.01,
-          alignment: Alignment.centerRight,
-        ),
-        _tableCell(
-          _likesFormat.format(package.likes),
-          alignment: Alignment.centerRight,
-        ),
-        _tableCell(package.isNullSafe.toString(),
-            alignment: Alignment.centerRight),
-        _tableCell(package.isDart3.toString(),
-            alignment: Alignment.centerRight),
-        _tableCell(package.ratio.toStringAsFixed(0),
-            alignment: Alignment.centerRight),
-      ];
-
-  ExpandableTableCell _firstCell(PackageData package) => ExpandableTableCell(
-        builder: (context, details) => Row(
+        child: Column(
           children: [
-            SizedBox(
-              width: 16,
-              child: details.row?.children != null
-                  ? Align(
-                      alignment: Alignment.centerRight,
-                      child: Transform.rotate(
-                        angle: details.row?.childrenExpanded == true
-                            ? 90 * pi / 180
-                            : 0,
-                        child: const Icon(
-                          Icons.keyboard_arrow_right,
-                          color: Colors.black,
-                        ),
-                      ),
-                    )
-                  : null,
+            Expanded(
+              child: Center(
+                child: SizedBox(
+                  width: 1000,
+                  child: PackagesTable(packages: widget.packages),
+                ),
+              ),
             ),
-            _TableCell(package.name),
+            Column(
+              children: [
+                Text('Packages: ${widget.packages.length}'),
+                Gap(8),
+                OutlinedButton(
+                  onPressed: _morePressed,
+                  child: Text('More...'),
+                ),
+              ],
+            ),
           ],
         ),
       );
-}
 
-class _HeaderCell extends StatelessWidget {
-  const _HeaderCell(this.name);
-  final String name;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        color: Colors.black,
-        child: Center(
-          child: Text(
-            name,
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-}
-
-class _TableCell extends StatelessWidget {
-  const _TableCell(
-    this.text, {
-    this.bad = false,
-    this.alignment = Alignment.centerLeft,
-  });
-  final String text;
-  final bool bad;
-  final Alignment alignment;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Align(
-          alignment: alignment,
-          child: Text(text, style: TextStyle(color: bad ? Colors.red : null)),
-        ),
-      );
+  Future<void> _morePressed() async {
+    final packages = await PackageData.fetchPackages(page: ++page);
+    setState(() => widget.packages.addAll(packages));
+    // setState(() => widget.packages.clear());
+  }
 }

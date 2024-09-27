@@ -1,5 +1,8 @@
 import 'package:pub_api_client/pub_api_client.dart';
 
+// TODO: include the mover score?
+// https://github.com/ericwindmill/pub_analytics/blob/fa63a022ab3f3cb19c45367a809be417d99d8cfe/lib/model/package.dart#L75
+
 class PackageData {
   PackageData({
     required this.name,
@@ -46,9 +49,9 @@ class PackageData {
     );
   }
 
-  static Future<List<PackageData>> fetchPackages() async {
+  static Future<List<PackageData>> fetchPackages({int page = 1}) async {
     final client = PubClient(debug: true);
-    final results = await client.search('', sort: SearchOrder.top);
+    final results = await client.search('', sort: SearchOrder.top, page: page);
     return Future.wait(
       results.packages.map((result) => PackageData.fromPackageResult(result)),
     );
