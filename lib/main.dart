@@ -63,43 +63,25 @@ class PackageDataListView extends StatelessWidget {
             _header('Ratio'),
           ],
           rows: [
-            for (var packageData in packageData)
+            for (var package in packageData)
               ExpandableTableRow(
-                  firstCell: ExpandableTableCell(
-                    child: _TableCell(packageData.name),
-                  ),
-                  cells: [
-                    _tableCell(
-                      '${packageData.daysSincePublished} days ago',
-                      bad: packageData.daysSincePublished > 180,
-                    ),
-                    _tableCell(
-                      _toPercent(packageData.popularityScore),
-                      bad: packageData.popularityScore < 0.01,
-                      alignment: Alignment.centerRight,
-                    ),
-                    _tableCell(
-                      _likesFormat.format(packageData.likes),
-                      alignment: Alignment.centerRight,
-                    ),
-                    _tableCell(packageData.isNullSafe.toString(),
-                        alignment: Alignment.centerRight),
-                    _tableCell(packageData.isDart3.toString(),
-                        alignment: Alignment.centerRight),
-                    _tableCell(packageData.ratio.toStringAsFixed(0),
-                        alignment: Alignment.centerRight),
-                  ]),
+                firstCell: ExpandableTableCell(child: _TableCell(package.name)),
+                cells: package.notes.isNotEmpty ? null : _subCells(package),
+                legend:
+                    package.notes.isNotEmpty ? _TableCell(package.notes) : null,
+                children: package.notes.isNotEmpty ? [_subRow(package)] : null,
+              ),
           ],
         ),
       );
+
+  String _toPercent(double value) => '${(value * 100).toStringAsFixed(0)}%';
 
   ExpandableTableHeader _header(String name) => ExpandableTableHeader(
         cell: ExpandableTableCell(
           child: _HeaderCell(name),
         ),
       );
-
-  String _toPercent(double value) => '${(value * 100).toStringAsFixed(0)}%';
 
   ExpandableTableCell _tableCell(
     String text, {
@@ -109,6 +91,35 @@ class PackageDataListView extends StatelessWidget {
       ExpandableTableCell(
         child: _TableCell(text, bad: bad, alignment: alignment),
       );
+
+  ExpandableTableRow _subRow(PackageData package) => ExpandableTableRow(
+        firstCell: ExpandableTableCell(
+          child: _TableCell('\t\t${package.name}'),
+        ),
+        cells: _subCells(package),
+      );
+
+  List<ExpandableTableCell> _subCells(PackageData package) => [
+        _tableCell(
+          '${package.daysSincePublished} days ago',
+          bad: package.daysSincePublished > 180,
+        ),
+        _tableCell(
+          _toPercent(package.popularityScore),
+          bad: package.popularityScore < 0.01,
+          alignment: Alignment.centerRight,
+        ),
+        _tableCell(
+          _likesFormat.format(package.likes),
+          alignment: Alignment.centerRight,
+        ),
+        _tableCell(package.isNullSafe.toString(),
+            alignment: Alignment.centerRight),
+        _tableCell(package.isDart3.toString(),
+            alignment: Alignment.centerRight),
+        _tableCell(package.ratio.toStringAsFixed(0),
+            alignment: Alignment.centerRight),
+      ];
 }
 
 class _HeaderCell extends StatelessWidget {
