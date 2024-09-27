@@ -65,7 +65,7 @@ class PackageDataListView extends StatelessWidget {
           rows: [
             for (var package in packageData)
               ExpandableTableRow(
-                firstCell: ExpandableTableCell(child: _TableCell(package.name)),
+                firstCell: _firstCell(package),
                 cells: package.notes.isNotEmpty ? null : _subCells(package),
                 legend:
                     package.notes.isNotEmpty ? _TableCell(package.notes) : null,
@@ -94,7 +94,12 @@ class PackageDataListView extends StatelessWidget {
 
   ExpandableTableRow _subRow(PackageData package) => ExpandableTableRow(
         firstCell: ExpandableTableCell(
-          child: _TableCell('\t\t${package.name}'),
+          child: Row(
+            children: [
+              SizedBox(width: 32),
+              _TableCell(package.name),
+            ],
+          ),
         ),
         cells: _subCells(package),
       );
@@ -120,6 +125,30 @@ class PackageDataListView extends StatelessWidget {
         _tableCell(package.ratio.toStringAsFixed(0),
             alignment: Alignment.centerRight),
       ];
+
+  ExpandableTableCell _firstCell(PackageData package) => ExpandableTableCell(
+        builder: (context, details) => Row(
+          children: [
+            SizedBox(
+              width: 16,
+              child: details.row?.children != null
+                  ? Align(
+                      alignment: Alignment.centerRight,
+                      child: AnimatedRotation(
+                        duration: const Duration(milliseconds: 500),
+                        turns: details.row?.childrenExpanded == true ? 0.25 : 0,
+                        child: const Icon(
+                          Icons.keyboard_arrow_right,
+                          color: Colors.black,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+            _TableCell(package.name),
+          ],
+        ),
+      );
 }
 
 class _HeaderCell extends StatelessWidget {
