@@ -8,8 +8,7 @@ import 'package_data.dart';
 
 class PackagesTable extends StatelessWidget {
   PackagesTable({super.key, required List<PackageData> packages})
-      : _packages = packages,
-        _controller = ExpandableTableController(
+      : _controller = ExpandableTableController(
           headerHeight: 48,
           duration: const Duration(milliseconds: 0),
           firstHeaderCell: ExpandableTableCell(child: _HeaderCell('Name')),
@@ -20,7 +19,7 @@ class PackagesTable extends StatelessWidget {
             _header('Likes'),
             _header('Null Safe'),
             _header('Dart 3'),
-            _header('Ratio'),
+            _header('Love #'),
           ],
           rows: [
             for (var package in packages)
@@ -34,14 +33,12 @@ class PackagesTable extends StatelessWidget {
           ],
         );
 
-  final List<PackageData> _packages;
   static final _likesFormat = NumberFormat.decimalPattern();
   final ExpandableTableController _controller;
 
   @override
-  Widget build(BuildContext context) => ExpandableTable(
-        controller: _controller,
-      );
+  Widget build(BuildContext context) =>
+      ExpandableTable(controller: _controller);
 
   static String _toPercent(double value) =>
       '${(value * 100).toStringAsFixed(0)}%';
@@ -80,19 +77,27 @@ class PackagesTable extends StatelessWidget {
         ),
         _tableCell(
           _toPercent(package.popularityScore),
-          bad: package.popularityScore < 0.01,
           alignment: Alignment.centerRight,
         ),
         _tableCell(
           _likesFormat.format(package.likes),
           alignment: Alignment.centerRight,
         ),
-        _tableCell(package.isNullSafe.toString(),
-            alignment: Alignment.centerRight),
-        _tableCell(package.isDart3.toString(),
-            alignment: Alignment.centerRight),
-        _tableCell(package.ratio.toStringAsFixed(0),
-            alignment: Alignment.centerRight),
+        _tableCell(
+          package.isNullSafe.toString(),
+          bad: !package.isNullSafe,
+          alignment: Alignment.centerRight,
+        ),
+        _tableCell(
+          package.isDart3.toString(),
+          bad: !package.isDart3,
+          alignment: Alignment.centerRight,
+        ),
+        _tableCell(
+          package.loveNum.toStringAsFixed(0),
+          bad: package.loveNum > 160 * .8, // 80% of top score (160)
+          alignment: Alignment.centerRight,
+        ),
       ];
 
   static ExpandableTableCell _firstCell(PackageData package) =>

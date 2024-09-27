@@ -1,4 +1,5 @@
 import 'package:pub_api_client/pub_api_client.dart';
+import 'package:publove/package_notes.dart';
 
 // TODO: include the mover score?
 // https://github.com/ericwindmill/pub_analytics/blob/fa63a022ab3f3cb19c45367a809be417d99d8cfe/lib/model/package.dart#L75
@@ -11,7 +12,6 @@ class PackageData {
     required this.isNullSafe,
     required this.isDart3,
     required this.likes,
-    this.notes = '',
   }) : daysSincePublished = DateTime.now().difference(published).inDays;
 
   final String name;
@@ -21,10 +21,10 @@ class PackageData {
   final bool isNullSafe;
   final bool isDart3;
   final int likes;
-  final String notes;
+  String get notes => packageNotes[name] ?? '';
 
   /// ratio of days since publication to popularity score
-  double get ratio => daysSincePublished / popularityScore;
+  double get loveNum => daysSincePublished / popularityScore;
 
   static Future<PackageData> fromPackageResult(PackageResult result) async {
     final client = PubClient(debug: true);
@@ -43,9 +43,6 @@ class PackageData {
           scorecard.panaReport?.derivedTags?.contains('is:dart3-compatible') ==
               true,
       likes: metrics.score.likeCount,
-      notes: name == 'provider'
-          ? 'the author of provider recommends using riverpod instead'
-          : '',
     );
   }
 
