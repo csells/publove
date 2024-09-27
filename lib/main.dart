@@ -3,6 +3,7 @@
 // --Erik Seidel, 2024-09-25
 // https://x.com/_eseidel/status/1838789824276500661
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_table/flutter_expandable_table.dart';
 import 'package:intl/intl.dart';
 
 import 'package_data.dart';
@@ -45,64 +46,103 @@ class PackageDataListView extends StatelessWidget {
   PackageDataListView(this.packageData, {super.key});
   final List<PackageData> packageData;
 
-  final _likeFormat = NumberFormat.decimalPattern();
+  final _likesFormat = NumberFormat.decimalPattern();
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Published')),
-            DataColumn(label: Text('Popularity Score')),
-            DataColumn(label: Text('Likes')),
-            DataColumn(label: Text('Null Safe')),
-            DataColumn(label: Text('Dart 3')),
-            DataColumn(label: Text('Ratio')),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(32),
+        child: ExpandableTable(
+          headerHeight: 48,
+          firstHeaderCell: ExpandableTableCell(child: _HeaderCell('Name')),
+          headers: [
+            _header('Published'),
+            _header('Popularity Score'),
+            _header('Likes'),
+            _header('Null Safe'),
+            _header('Dart 3'),
+            _header('Ratio'),
           ],
           rows: [
             for (var packageData in packageData)
-              DataRow(cells: [
-                DataCell(Text(packageData.name)),
-                DataCell(
-                  Text(
-                    '${packageData.daysSincePublished} days ago',
-                    style: TextStyle(
-                      color: packageData.daysSincePublished > 180
-                          ? Colors.red
-                          : null,
-                    ),
+              ExpandableTableRow(
+                  firstCell: ExpandableTableCell(
+                    child: _TableCell(packageData.name),
                   ),
-                ),
-                DataCell(RightAlign(
-                  child: Text(_toPercent(packageData.popularityScore)),
-                )),
-                DataCell(RightAlign(
-                  child: Text(_likeFormat.format(packageData.likes)),
-                )),
-                DataCell(RightAlign(
-                  child: Text(packageData.isNullSafe.toString()),
-                )),
-                DataCell(RightAlign(
-                  child: Text(packageData.isDart3.toString()),
-                )),
-                DataCell(RightAlign(
-                  child: Text(packageData.ratio.toStringAsFixed(0)),
-                )),
-              ]),
+                  cells: [
+                    _tableCell(
+                      '${packageData.daysSincePublished} days ago',
+                      bad: packageData.daysSincePublished > 180,
+                    ),
+                    _tableCell(
+                      _toPercent(packageData.popularityScore),
+                      bad: packageData.popularityScore < 0.01,
+                      alignment: Alignment.centerRight,
+                    ),
+                    _tableCell(
+                      _likesFormat.format(packageData.likes),
+                      alignment: Alignment.centerRight,
+                    ),
+                    _tableCell(packageData.isNullSafe.toString(),
+                        alignment: Alignment.centerRight),
+                    _tableCell(packageData.isDart3.toString(),
+                        alignment: Alignment.centerRight),
+                    _tableCell(packageData.ratio.toStringAsFixed(0),
+                        alignment: Alignment.centerRight),
+                  ]),
           ],
         ),
       );
 
+  ExpandableTableHeader _header(String name) => ExpandableTableHeader(
+        cell: ExpandableTableCell(
+          child: _HeaderCell(name),
+        ),
+      );
+
   String _toPercent(double value) => '${(value * 100).toStringAsFixed(0)}%';
+
+  ExpandableTableCell _tableCell(
+    String text, {
+    bool bad = false,
+    Alignment alignment = Alignment.centerLeft,
+  }) =>
+      ExpandableTableCell(
+        child: _TableCell(text, bad: bad, alignment: alignment),
+      );
 }
 
-class RightAlign extends StatelessWidget {
-  const RightAlign({required this.child, super.key});
-  final Widget child;
+class _HeaderCell extends StatelessWidget {
+  const _HeaderCell(this.name);
+  final String name;
 
   @override
-  Widget build(BuildContext context) => Align(
-        alignment: Alignment.centerRight,
-        child: child,
+  Widget build(BuildContext context) => Container(
+        color: Colors.black,
+        child: Center(
+          child: Text(
+            name,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+}
+
+class _TableCell extends StatelessWidget {
+  const _TableCell(
+    this.text, {
+    this.bad = false,
+    this.alignment = Alignment.centerLeft,
+  });
+  final String text;
+  final bool bad;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Align(
+          alignment: alignment,
+          child: Text(text, style: TextStyle(color: bad ? Colors.red : null)),
+        ),
       );
 }
