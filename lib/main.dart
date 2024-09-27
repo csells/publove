@@ -2,6 +2,8 @@
 // days-since-last-publish to usage or other “important & abandoned” list.'
 // --Erik Seidel, 2024-09-25
 // https://x.com/_eseidel/status/1838789824276500661
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_table/flutter_expandable_table.dart';
 import 'package:intl/intl.dart';
@@ -53,6 +55,7 @@ class PackageDataListView extends StatelessWidget {
         padding: const EdgeInsets.all(32),
         child: ExpandableTable(
           headerHeight: 48,
+          duration: const Duration(milliseconds: 0),
           firstHeaderCell: ExpandableTableCell(child: _HeaderCell('Name')),
           headers: [
             _header('Published'),
@@ -134,9 +137,10 @@ class PackageDataListView extends StatelessWidget {
               child: details.row?.children != null
                   ? Align(
                       alignment: Alignment.centerRight,
-                      child: AnimatedRotation(
-                        duration: const Duration(milliseconds: 500),
-                        turns: details.row?.childrenExpanded == true ? 0.25 : 0,
+                      child: Transform.rotate(
+                        angle: details.row?.childrenExpanded == true
+                            ? 90 * pi / 180
+                            : 0,
                         child: const Icon(
                           Icons.keyboard_arrow_right,
                           color: Colors.black,
