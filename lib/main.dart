@@ -4,7 +4,7 @@
 // https://x.com/_eseidel/status/1838789824276500661
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:publove/text_link.dart';
 
 import 'package_data.dart';
 import 'packages_table.dart';
@@ -57,25 +57,11 @@ class _PackageDataListViewState extends State<PackageDataListView> {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: () => launchUrl(
-                Uri.parse(
-                  'https://x.com/_eseidel/status/1838789824276500661',
-                ),
-                webOnlyWindowName: '_blank',
-              ),
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Text(
-                  '[It] would be neat to see a list of pub packages by ratio of '
-                  'days-since-last-publish to usage or other "important & '
-                  'abandoned" list.',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
+            TextLink(
+              '[It] would be neat to see a list of pub packages by ratio '
+              'of days-since-last-publish to usage or other "important & '
+              'abandoned" list.',
+              url: 'https://x.com/_eseidel/status/1838789824276500661',
             ),
             Text('--Erik Seidel, 2024-09-25'),
             Gap(16),
@@ -98,6 +84,12 @@ class _PackageDataListViewState extends State<PackageDataListView> {
             Text(
               '*Love # is the ratio of days since last publication to'
               ' popularity score. Higher numbers are worse.',
+            ),
+            Gap(16),
+            TextLink(
+              'Click here to contribute notes for a package.',
+              url:
+                  'https://github.com/csells/publove/blob/main/lib/package_notes.dart',
             ),
             Gap(16),
             OutlinedButton(
