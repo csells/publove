@@ -11,11 +11,16 @@ class PackagesTable extends StatelessWidget {
       : _controller = ExpandableTableController(
           headerHeight: 48,
           duration: const Duration(milliseconds: 0),
-          firstHeaderCell: ExpandableTableCell(child: _HeaderCell('Name')),
-          firstColumnWidth: 256,
+          firstHeaderCell: ExpandableTableCell(
+            child: _Cell('Name', isHeader: true, offset: 36),
+          ),
+          firstColumnWidth: 280,
+          visibleScrollbar: true,
+          thumbVisibilityScrollbar: true,
+          trackVisibilityScrollbar: true,
           headers: [
             _header('Published'),
-            _header('Popularity Score'),
+            _header('Popularity'),
             _header('Likes'),
             _header('Null Safe'),
             _header('Dart 3'),
@@ -26,8 +31,7 @@ class PackagesTable extends StatelessWidget {
               ExpandableTableRow(
                 firstCell: _firstCell(package),
                 cells: package.notes.isNotEmpty ? null : _subCells(package),
-                legend:
-                    package.notes.isNotEmpty ? _TableCell(package.notes) : null,
+                legend: package.notes.isNotEmpty ? _Cell(package.notes) : null,
                 children: package.notes.isNotEmpty ? [_subRow(package)] : null,
               ),
           ],
@@ -43,27 +47,31 @@ class PackagesTable extends StatelessWidget {
   static String _toPercent(double value) =>
       '${(value * 100).toStringAsFixed(0)}%';
 
-  static ExpandableTableHeader _header(String name) => ExpandableTableHeader(
+  static ExpandableTableHeader _header(
+    String name, {
+    Alignment alignment = Alignment.centerLeft,
+  }) =>
+      ExpandableTableHeader(
         cell: ExpandableTableCell(
-          child: _HeaderCell(name),
+          child: _Cell(name, isHeader: true, alignment: alignment),
         ),
       );
 
-  static ExpandableTableCell _tableCell(
+  static ExpandableTableCell _cell(
     String text, {
     bool bad = false,
     Alignment alignment = Alignment.centerLeft,
   }) =>
       ExpandableTableCell(
-        child: _TableCell(text, bad: bad, alignment: alignment),
+        child: _Cell(text, bad: bad, alignment: alignment),
       );
 
   static ExpandableTableRow _subRow(PackageData package) => ExpandableTableRow(
         firstCell: ExpandableTableCell(
           child: Row(
             children: [
-              SizedBox(width: 32),
-              _TableCell(package.name),
+              SizedBox(width: 64),
+              _Cell(package.name),
             ],
           ),
         ),
@@ -71,29 +79,29 @@ class PackagesTable extends StatelessWidget {
       );
 
   static List<ExpandableTableCell> _subCells(PackageData package) => [
-        _tableCell(
+        _cell(
           '${package.daysSincePublished} days ago',
           bad: package.daysSincePublished > 180,
         ),
-        _tableCell(
+        _cell(
           _toPercent(package.popularityScore),
           alignment: Alignment.centerRight,
         ),
-        _tableCell(
+        _cell(
           _likesFormat.format(package.likes),
           alignment: Alignment.centerRight,
         ),
-        _tableCell(
+        _cell(
           package.isNullSafe.toString(),
           bad: !package.isNullSafe,
           alignment: Alignment.centerRight,
         ),
-        _tableCell(
+        _cell(
           package.isDart3.toString(),
           bad: !package.isDart3,
           alignment: Alignment.centerRight,
         ),
-        _tableCell(
+        _cell(
           package.loveNum.toStringAsFixed(0),
           bad: package.loveNum > 160 * .8, // 80% of top score (160)
           alignment: Alignment.centerRight,
@@ -105,7 +113,7 @@ class PackagesTable extends StatelessWidget {
         builder: (context, details) => Row(
           children: [
             SizedBox(
-              width: 16,
+              width: 36,
               child: details.row?.children != null
                   ? Align(
                       alignment: Alignment.centerRight,
@@ -121,44 +129,50 @@ class PackagesTable extends StatelessWidget {
                     )
                   : null,
             ),
-            _TableCell(package.name),
+            _Cell(package.name),
           ],
         ),
       );
 }
 
-class _HeaderCell extends StatelessWidget {
-  const _HeaderCell(this.name);
-  final String name;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        color: Colors.black,
-        child: Center(
-          child: Text(
-            name,
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-}
-
-class _TableCell extends StatelessWidget {
-  const _TableCell(
+class _Cell extends StatelessWidget {
+  const _Cell(
     this.text, {
     this.bad = false,
     this.alignment = Alignment.centerLeft,
+    this.isHeader = false,
+    this.offset = 0,
   });
+
   final String text;
   final bool bad;
   final Alignment alignment;
+  final bool isHeader;
+  final double offset;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Align(
-          alignment: alignment,
-          child: Text(text, style: TextStyle(color: bad ? Colors.red : null)),
+  Widget build(BuildContext context) => Container(
+        color: isHeader ? Colors.black : null,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Align(
+            alignment: alignment,
+            child: Row(
+              children: [
+                SizedBox(width: offset),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: isHeader
+                        ? Colors.white
+                        : bad
+                            ? Colors.red
+                            : null,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
 }

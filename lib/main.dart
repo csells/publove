@@ -49,6 +49,7 @@ class PackageDataListView extends StatefulWidget {
 
 class _PackageDataListViewState extends State<PackageDataListView> {
   int page = 1;
+  var _moreEnabled = true;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -58,28 +59,33 @@ class _PackageDataListViewState extends State<PackageDataListView> {
             Expanded(
               child: Center(
                 child: SizedBox(
-                  width: 1000,
-                  child: PackagesTable(packages: widget.packages),
+                  width: 1002,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: PackagesTable(packages: widget.packages),
+                  ),
                 ),
               ),
             ),
-            Column(
-              children: [
-                Text('Packages: ${widget.packages.length}'),
-                Gap(8),
-                OutlinedButton(
-                  onPressed: _morePressed,
-                  child: Text('More...'),
-                ),
-              ],
+            Gap(8),
+            Text('Packages: ${widget.packages.length}'),
+            Gap(8),
+            OutlinedButton(
+              onPressed: _moreEnabled ? _morePressed : null,
+              child: Text('More...'),
             ),
           ],
         ),
       );
 
   Future<void> _morePressed() async {
+    setState(() => _moreEnabled = false);
     final packages = await PackageData.fetchPackages(page: ++page);
-    setState(() => widget.packages.addAll(packages));
-    // setState(() => widget.packages.clear());
+    setState(() {
+      widget.packages.addAll(packages);
+      _moreEnabled = true;
+    });
   }
 }
