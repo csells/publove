@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_table/flutter_expandable_table.dart';
 import 'package:intl/intl.dart';
+import 'package:publove/text_link.dart';
 
 import 'package_data.dart';
 
@@ -132,7 +133,7 @@ class PackagesTable extends StatelessWidget {
                     )
                   : null,
             ),
-            _Cell(package.name),
+            _Cell(package.name, url: package.url),
           ],
         ),
       );
@@ -145,6 +146,7 @@ class _Cell extends StatelessWidget {
     this.alignment = Alignment.centerLeft,
     this.isHeader = false,
     this.offset = 0,
+    this.url,
   });
 
   final String text;
@@ -152,6 +154,7 @@ class _Cell extends StatelessWidget {
   final Alignment alignment;
   final bool isHeader;
   final double offset;
+  final String? url;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -163,16 +166,18 @@ class _Cell extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(width: offset),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: isHeader
-                        ? Colors.white
-                        : bad
-                            ? Colors.red
-                            : null,
-                  ),
-                ),
+                url != null
+                    ? TextLink(text, url: url!)
+                    : Text(
+                        text,
+                        style: TextStyle(
+                          color: isHeader
+                              ? Colors.white
+                              : bad
+                                  ? Colors.red
+                                  : null,
+                        ),
+                      ),
               ],
             ),
           ),

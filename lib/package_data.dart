@@ -26,6 +26,8 @@ class PackageData {
   /// ratio of days since publication to popularity score
   double get loveNum => daysSincePublished / popularityScore;
 
+  String get url => 'https://pub.dev/packages/$name';
+
   static Future<PackageData> fromPackageResult(PackageResult result) async {
     final client = PubClient(debug: true);
     final name = result.package;
