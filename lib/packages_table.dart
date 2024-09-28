@@ -7,6 +7,9 @@ import 'package:intl/intl.dart';
 import 'package_data.dart';
 
 class PackagesTable extends StatelessWidget {
+  // note: using the controller and all of the static members is a bit of a hack
+  // but it's the only way I could figure out how to get the ExpandableTable to
+  // update with new data as it's available.
   PackagesTable({super.key, required List<PackageData> packages})
       : _controller = ExpandableTableController(
           headerHeight: 48,
@@ -24,7 +27,7 @@ class PackagesTable extends StatelessWidget {
             _header('Likes'),
             _header('Null Safe'),
             _header('Dart 3'),
-            _header('Love #'),
+            _header('*Love #'),
           ],
           rows: [
             for (var package in packages)
@@ -45,7 +48,7 @@ class PackagesTable extends StatelessWidget {
       ExpandableTable(controller: _controller);
 
   static String _toPercent(double value) =>
-      '${(value * 100).toStringAsFixed(0)}%';
+      '${(value * 100).toStringAsFixed(1)}%';
 
   static ExpandableTableHeader _header(
     String name, {

@@ -4,6 +4,7 @@
 // https://x.com/_eseidel/status/1838789824276500661
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package_data.dart';
 import 'packages_table.dart';
@@ -56,25 +57,52 @@ class _PackageDataListViewState extends State<PackageDataListView> {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            Expanded(
-              child: Center(
-                child: SizedBox(
-                  width: 1002,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 1),
-                    ),
-                    child: PackagesTable(packages: widget.packages),
+            GestureDetector(
+              onTap: () => launchUrl(
+                Uri.parse(
+                  'https://x.com/_eseidel/status/1838789824276500661',
+                ),
+                webOnlyWindowName: '_blank',
+              ),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Text(
+                  '[It] would be neat to see a list of pub packages by ratio of '
+                  'days-since-last-publish to usage or other "important & '
+                  'abandoned" list.',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
             ),
-            Gap(8),
-            Text('Packages: ${widget.packages.length}'),
-            Gap(8),
+            Text('--Erik Seidel, 2024-09-25'),
+            Gap(16),
+            Expanded(
+              child: SelectionArea(
+                child: Center(
+                  child: SizedBox(
+                    width: 1002,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: PackagesTable(packages: widget.packages),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Gap(16),
+            Text(
+              '*Love # is the ratio of days since last publication to'
+              ' popularity score. Higher numbers are worse.',
+            ),
+            Gap(16),
             OutlinedButton(
               onPressed: _moreEnabled ? _morePressed : null,
-              child: Text('More...'),
+              child: Text('More (${widget.packages.length})...'),
             ),
           ],
         ),
