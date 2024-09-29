@@ -1,0 +1,13 @@
+name: publove_lib
+description: A starting point for Dart libraries or applications.
+version: 1.0.1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  pub_api_client: ^2.7.1
+  csv: ^6.0.0
+
+dev_dependencies:
+  lints: ^5.0.0

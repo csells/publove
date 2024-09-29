@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_table/flutter_expandable_table.dart';
 import 'package:intl/intl.dart';
 import 'package:publove/text_link.dart';
+import 'package:publove_lib/publove_lib.dart';
 
-import 'package_data.dart';
-
-class PackagesTable extends StatelessWidget {
+class PackagesTableView extends StatelessWidget {
   // note: using the controller and all of the static members is a bit of a hack
   // but it's the only way I could figure out how to get the ExpandableTable to
   // update with new data as it's available.
-  PackagesTable({super.key, required List<PackageData> packages})
+  PackagesTableView({super.key, required List<PackageData> packages})
       : _controller = ExpandableTableController(
           headerHeight: 48,
           duration: const Duration(milliseconds: 0),

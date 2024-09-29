@@ -1,8 +1,6 @@
 import 'package:pub_api_client/pub_api_client.dart';
-import 'package:publove/package_notes.dart';
 
-// TODO: include the mover score?
-// https://github.com/ericwindmill/pub_analytics/blob/fa63a022ab3f3cb19c45367a809be417d99d8cfe/lib/model/package.dart#L75
+import 'package_notes.dart';
 
 class PackageData {
   PackageData({
@@ -29,7 +27,7 @@ class PackageData {
   String get url => 'https://pub.dev/packages/$name';
 
   static Future<PackageData> fromPackageResult(PackageResult result) async {
-    final client = PubClient(debug: true);
+    final client = PubClient();
     final name = result.package;
     final info = await client.packageInfo(name);
     final metrics = (await client.packageMetrics(name))!;
@@ -49,7 +47,7 @@ class PackageData {
   }
 
   static Future<List<PackageData>> fetchPackages({int page = 1}) async {
-    final client = PubClient(debug: true);
+    final client = PubClient();
     final results = await client.search('', sort: SearchOrder.top, page: page);
     return Future.wait(
       results.packages.map((result) => PackageData.fromPackageResult(result)),

@@ -5,9 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:publove/text_link.dart';
+import 'package:publove_lib/publove_lib.dart';
 
-import 'package_data.dart';
-import 'packages_table.dart';
+import 'packages_table_view.dart';
 
 void main() async => runApp(const App());
 
@@ -74,7 +74,7 @@ class _PackageDataListViewState extends State<PackageDataListView> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 1),
                       ),
-                      child: PackagesTable(packages: widget.packages),
+                      child: PackagesTableView(packages: widget.packages),
                     ),
                   ),
                 ),
