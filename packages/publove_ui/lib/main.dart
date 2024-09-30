@@ -18,24 +18,35 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) => const MaterialApp(home: PackageList());
 }
 
-class PackageList extends StatelessWidget {
+class PackageList extends StatefulWidget {
   const PackageList({super.key});
+
+  @override
+  State<PackageList> createState() => _PackageListState();
+}
+
+class _PackageListState extends State<PackageList> {
+  final packages = <PackageData>[];
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Pub Packages: Important & Abandoned'),
         ),
-        body: FutureBuilder(
-          future: PackageData.fetchPackages(),
-          builder: (context, packageDataSnapshot) =>
-              packageDataSnapshot.hasError
-                  ? Center(child: Text('Error: ${packageDataSnapshot.error}'))
-                  : packageDataSnapshot.hasData
-                      ? Center(
-                          child: PackageDataListView(packageDataSnapshot.data!),
-                        )
-                      : Center(child: const CircularProgressIndicator()),
+        body: StreamBuilder(
+          stream: PackageData.fetchPackages(),
+          builder: (context, packageDataSnapshot) {
+            if (packageDataSnapshot.hasError) {
+              return Center(child: Text('Error: ${packageDataSnapshot.error}'));
+            }
+
+            if (packageDataSnapshot.hasData) {
+              packages.add(packageDataSnapshot.data!);
+              return Center(child: PackageDataListView(packages));
+            }
+
+            return Center(child: const CircularProgressIndicator());
+          },
         ),
       );
 }
@@ -102,7 +113,7 @@ class _PackageDataListViewState extends State<PackageDataListView> {
 
   Future<void> _morePressed() async {
     setState(() => _moreEnabled = false);
-    final packages = await PackageData.fetchPackages(page: ++page);
+    final packages = await PackageData.fetchPackages(page: ++page).toList();
     setState(() {
       widget.packages.addAll(packages);
       _moreEnabled = true;

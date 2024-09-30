@@ -22,11 +22,10 @@ class PackagesTableView extends StatelessWidget {
           thumbVisibilityScrollbar: true,
           trackVisibilityScrollbar: true,
           headers: [
+            _header('Publisher'),
             _header('Published'),
             _header('Popularity'),
             _header('Likes'),
-            _header('Null Safe'),
-            _header('Dart 3'),
             _header('*Love #'),
           ],
           rows: [
@@ -83,6 +82,10 @@ class PackagesTableView extends StatelessWidget {
 
   static List<ExpandableTableCell> _subCells(PackageData package) => [
         _cell(
+          package.publisher,
+          alignment: Alignment.centerRight,
+        ),
+        _cell(
           '${package.daysSincePublished} days ago',
           bad: package.daysSincePublished > 180,
         ),
@@ -92,16 +95,6 @@ class PackagesTableView extends StatelessWidget {
         ),
         _cell(
           _likesFormat.format(package.likes),
-          alignment: Alignment.centerRight,
-        ),
-        _cell(
-          package.isNullSafe.toString(),
-          bad: !package.isNullSafe,
-          alignment: Alignment.centerRight,
-        ),
-        _cell(
-          package.isDart3.toString(),
-          bad: !package.isDart3,
           alignment: Alignment.centerRight,
         ),
         _cell(

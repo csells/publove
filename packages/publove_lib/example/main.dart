@@ -4,17 +4,17 @@ import 'package:csv/csv.dart';
 import 'package:publove_lib/publove_lib.dart';
 
 void main(List<String> args) async {
-  if (args.length > 1) print('usage: publove [pages]');
-  final pages = args.length == 1 ? int.parse(args[0]) : 1;
-  final stream = fetchPackages(pages: pages);
+  if (args.length > 2) print('usage: publove [pages] [skip]');
+  final pages = args.isNotEmpty ? int.parse(args[0]) : 1;
+  final skip = args.length == 2 ? int.parse(args[1]) : 0;
+  final stream = fetchPackages(pages: pages, skip: skip);
   final rows = [
     [
       'Name',
+      'Publisher',
       'Published (days ago)',
       'Popularity',
       'Likes',
-      'Null Safe',
-      'Dart 3',
       'Love #',
       'Notes',
     ],
@@ -23,11 +23,10 @@ void main(List<String> args) async {
   await for (var package in stream) {
     rows.add([
       package.name,
+      package.publisher,
       '${DateTime.now().difference(package.published).inDays}',
       package.popularityScore.toString(),
       package.likes.toString(),
-      package.isNullSafe.toString(),
-      package.isDart3.toString(),
       package.loveNum.toString(),
       package.notes,
     ]);
@@ -38,10 +37,19 @@ void main(List<String> args) async {
   exit(0);
 }
 
-Stream<PackageData> fetchPackages({required int pages}) async* {
-  for (var page = 1; page <= pages; ++page) {
-    final packages = await PackageData.fetchPackages(page: page);
-    for (var package in packages) {
+Stream<PackageData> fetchPackages({required int pages, int skip = 0}) async* {
+  const pageSize = 10;
+  final offset = skip * pageSize;
+  var count = 0;
+
+  for (var page = 1 + offset; page <= pages + offset; ++page) {
+    final stream = PackageData.fetchPackages(page: page);
+    await for (var package in stream) {
+      stderr.writeln(
+        '${++count + offset}.\t${package.name} '
+        '${package.notes.isNotEmpty ? " (${package.notes})" : ''}',
+      );
+
       yield package;
     }
   }
